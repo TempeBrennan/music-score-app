@@ -1,0 +1,38 @@
+/* Score Container */
+.score {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  background: transparent;
+  height: 100%;
+}
+
+.score-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.score-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+  font-family: "Microsoft YaHei", "SimSun", serif;
+}
+
+.score-key,
+.score-artist {
+  display: inline-block;
+  margin: 0 12px;
+  font-size: 14px;
+  color: #666;
+}
+
+.score-measures {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0;
+}

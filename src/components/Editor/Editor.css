@@ -1,0 +1,220 @@
+/* Copying styles from original App.css */
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border-right: 1px solid #e5e7eb;
+}
+
+.nav-toolbar {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  background: #f9f9f9;
+}
+
+.back-btn {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.back-btn:hover {
+  background: #f0f0f0;
+}
+
+.score-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.score-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.toolbar-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.song-input {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s;
+  outline: none;
+  background: #f9fafb;
+}
+
+.song-input:focus {
+  background: white;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.title-input {
+  width: 180px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.artist-input {
+  width: 120px;
+  color: #4b5563;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background-color: #e5e7eb;
+  margin: 0 4px;
+}
+
+.quick-input-toggle {
+  padding: 8px 16px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.quick-input-toggle:hover {
+  background: #059669;
+}
+.quick-input-toggle.active {
+  background: #ef4444;
+}
+
+.add-measure-btn {
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.add-measure-btn:hover {
+  background: #2563eb;
+}
+
+.save-btn {
+  padding: 8px 16px;
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+.save-btn:hover {
+  background: #7c3aed;
+}
+
+.quick-input-hints-bar {
+  background: #374151;
+  color: white;
+  padding: 8px 20px;
+  font-size: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  border-bottom: 1px solid #4b5563;
+}
+
+.hint-title {
+  color: #34d399;
+  font-weight: bold;
+}
+
+.hint-item kbd {
+  background: #4b5563;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-right: 4px;
+  font-family: monospace;
+  border: 1px solid #6b7280;
+}
+
+.export-btn {
+  padding: 8px 16px;
+  background: #ea580c; /* Orange */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.export-btn:hover {
+  background: #c2410c;
+}
+
+.key-select {
+  margin-left: 8px;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  width: 140px;
+  background-color: white;
+  cursor: pointer;
+}
+.key-select:focus {
+  outline: none;
+  border-color: #2196F3;
+}
+
+
+.octave-select {
+  margin-left: 8px;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  width: 100px; /* Force width if inline style is not enough or to be consistent */
+  background-color: white;
+  cursor: pointer;
+}
+.octave-select:focus {
+  outline: none;
+  border-color: #2196F3;
+}
+

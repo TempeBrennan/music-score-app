@@ -1,0 +1,135 @@
+.home-container {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Microsoft YaHei', sans-serif;
+}
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.home-header h1 {
+  font-size: 32px;
+  color: #1f2937;
+}
+
+.new-song-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+}
+
+.new-song-btn:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(59, 130, 246, 0.3);
+}
+
+.song-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.song-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.song-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+  border-color: #3b82f6;
+}
+
+.song-info h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  color: #111827;
+}
+
+.song-info .artist {
+  margin: 0 0 4px 0;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.song-info .updated {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.2s;
+  justify-content: flex-end;
+}
+
+.song-card:hover .card-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.edit-btn, .delete-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.edit-btn {
+  background: #eff6ff;
+  color: #3b82f6;
+}
+
+.edit-btn:hover {
+  background: #dbeafe;
+}
+
+.delete-btn {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.delete-btn:hover {
+  background: #fee2e2;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px;
+  color: #6b7280;
+  font-size: 18px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 2px dashed #e5e7eb;
+}

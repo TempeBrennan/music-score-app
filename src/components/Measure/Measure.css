@@ -1,0 +1,100 @@
+.measure {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 0;
+  position: relative;
+  gap: 12px;
+  min-width: 60px; /* Ensure empty measures are visible/clickable */
+  min-height: 80px; 
+  border: 1px dashed transparent; /* Placeholder for selection state */
+  transition: all 0.2s;
+}
+
+.measure.active-input {
+  background-color: #eff6ff; /* blue-50 */
+  border: 1px dashed #3b82f6; /* blue-500 */
+  border-radius: 4px;
+}
+
+.measure::after {
+  content: "点击或按数字键输入";
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  color: #9ca3af;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.measure:empty::after,
+.measure.empty::after {
+  opacity: 1;
+}
+
+.measure-content {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0;
+  min-height: 60px; /* Ensure content area has height for alignment */
+}
+
+.measure-divider {
+  width: 2px;
+  height: 40px;
+  background: #333;
+  flex-shrink: 0;
+  align-self: center;
+  transform: translateY(-16px);
+}
+
+.measure-group {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-right: 16px;
+  justify-content: flex-end; /* Align bottom to push notes up and lyrics down */
+  height: 100%;
+}
+
+.group-notes {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  min-height: 70px; /* Reserve space for notes */
+  min-width: 100px;
+}
+
+.group-lyric {
+  text-align: left;
+  font-size: 16px;
+  margin-top: 4px;
+  color: #555;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 2px;
+  transition: background 0.2s;
+  min-height: 20px;
+  min-width: 30px;
+}
+
+.group-lyric:hover {
+  background: #f0f0f0;
+}
+
+.group-lyric.empty {
+  color: #aaa;
+}
+
+.measure-spacer {
+  display: inline-block;
+  width: 16px;
+  height: 1px;
+}
+
+.tie-overlay {
+  z-index: 10;
+}

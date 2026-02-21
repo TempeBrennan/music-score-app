@@ -1,0 +1,191 @@
+/* Note */
+.note-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.note {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Use explicit spacing instead of center justification to align note bodies */
+  justify-content: flex-start; 
+  padding-top: 24px; /* Sufficient space for octave dots above */
+  cursor: pointer;
+  padding-left: 3px;
+  padding-right: 3px;
+  width: 36px;
+  min-height: 80px; /* Slightly taller to accommodate dots */
+  transition: background-color 0.2s;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* 升高八度区域 - absolute positioning relative to top padding area */
+.octave-up {
+  display: flex;
+  flex-direction: column-reverse; /* Bottom-up */
+  align-items: center;
+  gap: 2px;
+  position: absolute;
+  top: 4px; /* Fixed distance from top */
+  height: 20px; /* Fixed height reservation */
+  justify-content: flex-end; /* Align dots to bottom of this container (close to note) */
+  width: 100%;
+}
+
+/* 降低八度区域 - Flow naturally below main note */
+.octave-down {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  margin-top: 2px;
+  /* Min height to reserve space? No, let it flow */
+  min-height: 10px; /* Reserve some space to minimize jumpiness if desired, or remove */
+}
+
+/* 时值下划线 - Flow naturally below octave-down */
+.note-underlines {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.note-underline {
+  height: 2px;
+  width: 18px;
+  background-color: #333;
+  margin-top: 1px;
+}
+
+
+
+/* 降低八度区域 */
+.octave-down {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 5px;
+  margin-top: 2px;
+}
+
+/* 八度圆点 */
+.octave-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #222;
+}
+
+.note-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 26px;
+  margin: 0;
+  cursor: pointer;
+  min-width: 28px;
+  transition: all 0.2s;
+  border: 1.5px solid transparent;
+  border-radius: 5px;
+  padding: 2px 4px;
+  box-sizing: border-box;
+}
+
+.note-wrapper.selected .note-main {
+  background: rgba(3, 169, 244, 0.12);
+  border-color: #c0c0c0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 升降号显示在左上角 */
+.alter-symbol {
+  position: absolute;
+  top: -4px;
+  left: -2px;
+  font-size: 13px;
+  color: #000;
+  font-weight: 600;
+  user-select: none;
+  z-index: 1;
+  line-height: 1;
+}
+
+.note-pitch {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  color: #222;
+  line-height: 1;
+  user-select: none;
+  text-align: center;
+}
+
+.note-pitch-input {
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-weight: 500;
+  color: #222;
+  text-align: center;
+  border: 1px solid #1a73e8;
+  border-radius: 2px;
+  outline: none;
+  padding: 0;
+  background-color: #e3f2fd;
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
+}
+
+.note-pitch-input::selection {
+  background-color: transparent;
+}
+
+/* 附点显示在数字右侧 */
+.dotted-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #222;
+  margin-left: 6px;
+  flex-shrink: 0;
+  align-self: flex-end;
+  margin-bottom: 2px;
+}
+
+/* 时值下划线 */
+.note-underlines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 3px;
+  min-height: 8px;
+  justify-content: flex-start;
+}
+
+.note-underline {
+  width: 22px;
+  height: 1px;
+  background: #222;
+}
+
+.note-lyric {
+  font-size: 12px;
+  color: #555;
+  margin-top: 4px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+
