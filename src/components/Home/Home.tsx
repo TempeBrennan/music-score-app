@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { normalizeSongData } from "../../utils/songUtils";
+import { Song } from "../../types";
 import "./Home.css";
 
 interface SongSummary {
@@ -13,6 +15,7 @@ interface SongSummary {
 function Home() {
   const [songs, setSongs] = useState<SongSummary[]>([]);
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchSongs();
@@ -38,13 +41,67 @@ function Home() {
     }
   };
 
+  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const text = event.target?.result as string;
+        const rawData = JSON.parse(text);
+        const songData: Song = normalizeSongData(rawData);
+        
+        // Ensure minimal required fields
+        if (!songData.title) songData.title = file.name.replace('.json', '');
+        
+        // Save as new song
+        const response = await fetch('http://localhost:3001/api/songs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: songData.title,
+            artist: songData.originalArtist,
+            key_signature: songData.keySignature || 'C',
+            data: songData
+          })
+        });
+
+        const res = await response.json();
+        if (res.message === 'success' && res.data?.id) {
+           navigate(`/editor/${res.data.id}`);
+        } else {
+           alert('保存导入的歌曲失败: ' + (res.error || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error("Import failed:", err);
+        alert("导入文件失败，请检查格式");
+      }
+      // Reset input
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div className="home-container">
       <header className="home-header">
         <h1>我的乐谱库</h1>
-        <button className="new-song-btn" onClick={() => navigate('/editor/new')}>
-          + 新建乐谱
-        </button>
+        <div className="header-actions">
+            <button className="import-song-btn" onClick={() => fileInputRef.current?.click()} style={{marginRight: '10px'}}>
+              📂 导入乐谱
+            </button>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              style={{ display: 'none' }} 
+              accept=".json" 
+              onChange={handleImportFile}
+            />
+            <button className="new-song-btn" onClick={() => navigate('/editor/new')}>
+              + 新建乐谱
+            </button>
+        </div>
       </header>
       
       <div className="song-grid">

@@ -90,7 +90,8 @@ function Editor() {
     onDeleteNote: deleteNote,
   });
   
-  const { exportSongJSON, copySongToClipboard, importSongFromClipboard, handleExportMusicXML } = useSongData(song, setSong);
+  const { exportSongJSON, copySongToClipboard, importSongFromClipboard, handleExportMusicXML, importSongFromFile } = useSongData(song, setSong);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 暴露数据操作方法到全局（基于 Song）
   useEffect(() => {
@@ -234,6 +235,22 @@ function Editor() {
             <button className="save-btn" onClick={handleSave}>💾 保存乐谱</button>
             <div className="toolbar-divider"></div>
             <button className="export-btn" onClick={handleExportMusicXML}>🎼 导出XML</button>
+            <button className="export-json-btn" onClick={exportSongJSON} style={{marginLeft: '8px', padding: '0 12px', height: '32px', cursor: 'pointer'}}>🛠️ 导出JSON</button>
+            <button className="import-json-btn" onClick={() => fileInputRef.current?.click()} style={{marginLeft: '8px', padding: '0 12px', height: '32px', cursor: 'pointer'}}>📂 导入JSON</button>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              style={{ display: 'none' }} 
+              accept=".json" 
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  importSongFromFile(file);
+                  // Reset input value to allow selecting same file again
+                  e.target.value = '';
+                }
+              }}
+            />
           </div>
           
           {quickInput.isActive && (

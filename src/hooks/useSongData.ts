@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { Song } from '../types';
 import { exportMusicXML } from '../utils/exportUtils';
+import { normalizeSongData } from '../utils/songUtils';
 
 export function useSongData(song: Song, onImport?: (song: Song) => void) {
   // 导出 MusicXML
@@ -48,7 +49,8 @@ export function useSongData(song: Song, onImport?: (song: Song) => void) {
     }
     try {
       const text = await navigator.clipboard.readText();
-      const data = JSON.parse(text) as Song;
+      const rawData = JSON.parse(text);
+      const data = normalizeSongData(rawData);
       onImport(data);
       alert("数据导入成功！");
     } catch (err) {
@@ -67,7 +69,8 @@ export function useSongData(song: Song, onImport?: (song: Song) => void) {
     reader.onload = (e) => {
       try {
         const text = e.target?.result as string;
-        const data = JSON.parse(text) as Song;
+        const rawData = JSON.parse(text);
+        const data = normalizeSongData(rawData);
         onImport(data);
         alert("文件导入成功！");
       } catch (err) {
