@@ -1,13 +1,146 @@
 const express = require('express');
 const cors = require('cors');
+const { AzureOpenAI } = require('openai');
+const multer = require('multer');
+const path = require('path');
 const db = require('./database');
 const StandardMusicXMLGenerator = require('./musicxmlGenerator');
 
+// Load .env from server/ directory (Node.js 20.12+ built-in, no extra packages)
+try { process.loadEnvFile(path.join(__dirname, '.env')); } catch (_) {}
+
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+// gpt-4o-mini 支持视觉输入，用于 OCR 识别
+const azureOpenAIVision = new AzureOpenAI({
+    endpoint: process.env.AZURE_OPENAI_VISION_ENDPOINT,
+    apiKey: process.env.AZURE_OPENAI_VISION_API_KEY,
+    deployment: process.env.AZURE_OPENAI_VISION_DEPLOYMENT,
+    apiVersion: process.env.AZURE_OPENAI_VISION_API_VERSION,
+});
+
+// ─── Multer Setup ────────────────────────────────────────────────────
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) cb(null, true);
+        else cb(new Error('Only image files are supported'));
+    },
+});
+
+// ─── OCR System Prompt ──────────────────────────────────────────────────────
+const OCR_SYSTEM_PROMPT = `
+你是一个专业的简谱 OCR 解析器。用户会发给你一张简谱小节的截图，
+你需要识别其中的音符、时值、附点、延音线、歌词，并严格按照以下 JSON 结构输出。
+
+## 数据结构规则
+
+### 音高 degree（数字）
+- 0 = 休止符（Pause），包括图中的 "0" 和 "-"（延长横线也视为休止符）
+- 1=C, 2=D, 3=E, 4=F, 5=G, 6=A, 7=B
+
+### accidental（升降号）
+- "natural"（默认，无记号）
+- "sharp"（#，升号）
+- "flat"（b，降号）
+
+### duration（时值，看数字下方的下划线条数）
+- 无下划线         → "quarter"（四分音符）
+- 一条下划线       → "eighth"（八分音符）
+- 两条下划线       → "sixteenth"（十六分音符）
+- 特殊："-" 或单独延长记号 → "quarter" 的休止符，degree=0
+
+### dotted（附点，看数字右侧是否有 · ）
+- 有附点 → dotted: true
+- 无附点 → 不输出此字段
+
+### octaveShift（八度偏移，看数字上方/下方的小点）
+- 数字上方有点 → octaveShift: 1（高八度）
+- 数字下方有点 → octaveShift: -1（低八度）
+- 无点 → 不输出此字段
+
+### tieStart / tieEnd（延音连线，看音符之间的弧线）
+- 弧线起点的音符 → tieStart: true
+- 弧线终点的音符 → tieEnd: true
+
+## 输出格式（严格 JSON，不要输出任何多余文字）
+
+{
+  "measure": {
+    "elements": {
+      "0": {
+        "type": "group",
+        "group": {
+          "notes": {
+            "0": { "degree": <number>, "accidental": <string>, "duration": <string> },
+            "1": { "degree": <number>, "accidental": <string>, "duration": <string>, "dotted": true },
+            ...
+          },
+          "lyric": "<该小节完整歌词>"
+        }
+      }
+    }
+  }
+}
+
+## 注意事项
+- notes 的 key 从 "0" 开始，按图中从左到右顺序递增
+- 一张截图通常只有一个小节，elements 只需要 "0" 这一个 group
+- 歌词保持原文，不拆分，整句放入 lyric 字段
+- 只输出纯 JSON，不要 markdown 代码块，不要任何解释文字
+`.trim();
+
+// ─── Route: POST /api/ocr-measure ────────────────────────────────────────────
+app.post('/api/ocr-measure', upload.single('image'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'Please upload an image file with field name "image"' });
+        }
+
+        const base64Image = req.file.buffer.toString('base64');
+        const mimeType = req.file.mimetype;
+        const dataUrl = `data:${mimeType};base64,${base64Image}`;
+
+        const response = await azureOpenAIVision.chat.completions.create({
+            messages: [
+                { role: 'system', content: OCR_SYSTEM_PROMPT },
+                {
+                    role: 'user',
+                    content: [
+                        { type: 'image_url', image_url: { url: dataUrl, detail: 'high' } },
+                        { type: 'text', text: '请解析这张简谱小节截图，按照系统提示的格式输出 JSON。' },
+                    ],
+                },
+            ],
+            response_format: { type: 'json_object' },
+            temperature: 1,
+            max_completion_tokens: 2048,
+        });
+
+        const rawText = response.choices[0]?.message?.content || '{}';
+        console.log('[OCR] finish_reason:', response.choices[0]?.finish_reason);
+        console.log('[OCR] raw AI response:', rawText);
+
+        let parsed;
+        try {
+            parsed = JSON.parse(rawText);
+        } catch (e) {
+            console.error('[OCR] JSON parse failed:', e.message);
+            return res.status(500).json({ success: false, message: 'AI response not valid JSON', raw: rawText });
+        }
+
+        console.log('[OCR] parsed keys:', Object.keys(parsed));
+        res.json({ success: true, data: parsed });
+
+    } catch (error) {
+        console.error("OCR Error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
 
 // Helper to convert React-Music NoteV2 to MusicXML NoteData
 function convertToXmlData(song) {

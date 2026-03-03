@@ -131,11 +131,20 @@ export function useSongOperations(song: Song, setSong: (song: Song) => void, sel
     setSelectedNoteId(newNoteId);
   }, [song, selectedNoteId, getNoteById, setSong, setSelectedNoteId]);
 
+  const deleteMeasure = useCallback((measureIdx: number) => {
+    const newSong: Song = JSON.parse(JSON.stringify(song));
+    if (newSong.measures.length <= 1) return; // keep at least one measure
+    newSong.measures.splice(measureIdx, 1);
+    setSong(newSong);
+    setSelectedNoteId(null);
+  }, [song, setSong, setSelectedNoteId]);
+
   return {
     getNoteById,
     updateNote,
     deleteNote,
     addMeasure,
-    appendNote
+    appendNote,
+    deleteMeasure,
   };
 }

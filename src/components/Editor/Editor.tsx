@@ -7,7 +7,8 @@ import { useQuickInput } from "../../hooks/useQuickInput";
 import { useSongData } from "../../hooks/useSongData";
 import { useSongPersistence } from "../../hooks/useSongPersistence";
 import { useSongOperations } from "../../hooks/useSongOperations";
-import { Song, Accidental, Duration as DurationEnum, Degree } from "../../types";
+import { Song, Measure, Accidental, Duration as DurationEnum, Degree } from "../../types";
+import OCRQueue from "../OCRQueue/OCRQueue";
 import "./Editor.css";
 
 // Declare global to extend Window interface
@@ -55,6 +56,7 @@ function Editor() {
   const { song, setSong, saveSong: saveSongToBackend, loading, error } = useSongPersistence(id, demoSong);
   
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+  const [showOCRPanel, setShowOCRPanel] = useState(false);
   const scoreRef = useRef<ScoreHandle | null>(null);
   
   const [quickInputConfig, setQuickInputConfig] = useState({
@@ -66,7 +68,12 @@ function Editor() {
   });
 
   // 使用 Operations Hook 管理 Song 编辑操作
-  const { getNoteById, updateNote, deleteNote, addMeasure, appendNote } = useSongOperations(song, setSong, selectedNoteId, setSelectedNoteId);
+  const { getNoteById, updateNote, deleteNote, addMeasure, appendNote, deleteMeasure } = useSongOperations(song, setSong, selectedNoteId, setSelectedNoteId);
+
+  // Derive selected measure index from selectedNoteId
+  const selectedMeasureIdx = selectedNoteId
+    ? parseInt(selectedNoteId.match(/^measure-(\d+)/)?.[1] ?? '-1')
+    : -1;
 
   // 处理保存按钮点击
   const handleSave = async () => {
@@ -81,6 +88,12 @@ function Editor() {
     }
   };
 
+  // OCR: append all recognised measures to the song at once
+  const handleMeasuresReady = (measures: Measure[]) => {
+    setSong(prev => ({ ...prev, measures: [...prev.measures, ...measures] }));
+    setShowOCRPanel(false);
+  };
+
   const quickInput = useQuickInput({ 
     song, 
     onSongChange: setSong, 
@@ -90,7 +103,7 @@ function Editor() {
     onDeleteNote: deleteNote,
   });
   
-  const { exportSongJSON, copySongToClipboard, importSongFromClipboard, handleExportMusicXML, importSongFromFile } = useSongData(song, setSong);
+  const { exportSongJSON, handleExportMusicXML, importSongFromFile } = useSongData(song, setSong);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 暴露数据操作方法到全局（基于 Song）
@@ -225,32 +238,6 @@ function Editor() {
             >
               ⚡ {quickInput.isActive ? '退出' : '开启'}快速录入
             </button>
-            <button 
-              className="add-measure-btn"
-              onClick={addMeasure}
-            >
-              ➕ 新增小节
-            </button>
-            <div className="toolbar-divider"></div>
-            <button className="save-btn" onClick={handleSave}>💾 保存乐谱</button>
-            <div className="toolbar-divider"></div>
-            <button className="export-btn" onClick={handleExportMusicXML}>🎼 导出XML</button>
-            <button className="export-json-btn" onClick={exportSongJSON} style={{marginLeft: '8px', padding: '0 12px', height: '32px', cursor: 'pointer'}}>🛠️ 导出JSON</button>
-            <button className="import-json-btn" onClick={() => fileInputRef.current?.click()} style={{marginLeft: '8px', padding: '0 12px', height: '32px', cursor: 'pointer'}}>📂 导入JSON</button>
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              style={{ display: 'none' }} 
-              accept=".json" 
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  importSongFromFile(file);
-                  // Reset input value to allow selecting same file again
-                  e.target.value = '';
-                }
-              }}
-            />
           </div>
           
           {quickInput.isActive && (
@@ -274,6 +261,67 @@ function Editor() {
             onNoteSelect={(id) => setSelectedNoteId(id)} 
             ref={scoreRef} 
           />
+        </div>
+
+        {/* Right Panel */}
+        <div className="right-panel">
+          {/* 小节操作 */}
+          <div className="right-panel-section">
+            <h4 className="right-panel-title">🎵 小节操作</h4>
+            <button className="rp-btn rp-btn-primary" onClick={addMeasure}>
+              ➕ 新增小节
+            </button>
+            <button
+              className="rp-btn rp-btn-danger"
+              onClick={() => {
+                if (selectedMeasureIdx < 0) return;
+                if (song.measures.length <= 1) { alert('至少保留一个小节'); return; }
+                if (window.confirm(`确认删除第 ${selectedMeasureIdx + 1} 小节？`)) deleteMeasure(selectedMeasureIdx);
+              }}
+              disabled={selectedMeasureIdx < 0}
+              title={selectedMeasureIdx >= 0 ? `删除第 ${selectedMeasureIdx + 1} 小节` : '请先选中一个小节内的音符'}
+            >
+              🗑 删除小节{selectedMeasureIdx >= 0 ? ` #${selectedMeasureIdx + 1}` : ''}
+            </button>
+          </div>
+
+          {/* OCR */}
+          <div className="right-panel-section">
+            <h4 className="right-panel-title">📷 图片识别</h4>
+            <button
+              className={`rp-btn rp-btn-ocr${showOCRPanel ? ' active' : ''}`}
+              onClick={() => setShowOCRPanel(v => !v)}
+            >
+              {showOCRPanel ? '▲ 收起识别面板' : '▼ 展开识别面板'}
+            </button>
+            {showOCRPanel && (
+              <div className="right-panel-ocr">
+                <OCRQueue
+                  onMeasuresReady={handleMeasuresReady}
+                  onClose={() => setShowOCRPanel(false)}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* 文件操作 */}
+          <div className="right-panel-section">
+            <h4 className="right-panel-title">📂 文件操作</h4>
+            <button className="rp-btn rp-btn-save" onClick={handleSave}>💾 保存乐谱</button>
+            <button className="rp-btn rp-btn-export" onClick={handleExportMusicXML}>🎼 导出XML</button>
+            <button className="rp-btn rp-btn-export" onClick={exportSongJSON}>🛠️ 导出JSON</button>
+            <button className="rp-btn rp-btn-import" onClick={() => fileInputRef.current?.click()}>📂 导入JSON</button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              accept=".json"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) { importSongFromFile(file); e.target.value = ''; }
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
