@@ -31,13 +31,14 @@ const GroupLyricsEditor: React.FC<GroupLyricsEditorProps> = ({ lyric, onSave, on
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
+        onBlur={handleSave}
         placeholder="输入歌词"
         autoFocus
         className="lyric-input"
       />
       <div className="editor-buttons">
-        <button onClick={handleSave} className="btn-save">✓</button>
-        <button onClick={onCancel} className="btn-cancel">✕</button>
+        <button onMouseDown={(e) => e.preventDefault()} onClick={handleSave} className="btn-save">✓</button>
+        <button onMouseDown={(e) => e.preventDefault()} onClick={onCancel} className="btn-cancel">✕</button>
       </div>
     </div>
   );
