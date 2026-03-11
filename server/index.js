@@ -50,9 +50,9 @@ const OCR_SYSTEM_PROMPT = `
 
 ## 数据结构规则
 
-### 音高 degree（数字）
-- 0 = 休止符（Pause），包括图中的 "0" 和 "-"（延长横线也视为休止符）
-- 1=C, 2=D, 3=E, 4=F, 5=G, 6=A, 7=B
+### 音高 degree（可为数字或字符）
+- 0 = 休止符（Pause），包括图中的 "0"
+- 1=C, 2=D, 3=E, 4=F, 5=G, 6=A, 7=B, Extend = "-"
 
 ### accidental（升降号）
 - "natural"（默认，无记号）
@@ -247,8 +247,45 @@ function convertToXmlData(song) {
       m.elements.forEach(el => {
         if (el.type === 'group' && el.group && el.group.notes) {
           el.group.notes.forEach((n, nIdx) => {
-            const degreeIndex = n.degree - 1;
-            const isRest = n.degree == 0;
+            // 先计算当前音符/增时线的时值 (基于四分音符 divisions = 4)
+            let duration = 4;
+            let xmlType = 'quarter';
+
+            switch (n.duration) {
+              case 'whole': duration = 16; xmlType = 'whole'; break;
+              case 'half': duration = 8; xmlType = 'half'; break;
+              case 'quarter': duration = 4; xmlType = 'quarter'; break;
+              case 'eighth': duration = 2; xmlType = 'eighth'; break;
+              case 'sixteenth': duration = 1; xmlType = '16th'; break;
+            }
+
+            if (n.dotted) {
+              duration = Math.floor(duration * 1.5);
+            }
+
+            // 处理增时线 "-"
+            if (n.degree === '-') {
+              if (xmlMeasure.notes.length > 0) {
+                const lastNote = xmlMeasure.notes[xmlMeasure.notes.length - 1];
+                lastNote.duration += duration;
+                
+                // 根据合并后的总时值重新判断五线谱的音符类型和附点
+                switch(lastNote.duration) {
+                  case 1: lastNote.xmlType = '16th'; lastNote.hasDot = false; break;
+                  case 2: lastNote.xmlType = 'eighth'; lastNote.hasDot = false; break;
+                  case 3: lastNote.xmlType = 'eighth'; lastNote.hasDot = true; break;
+                  case 4: lastNote.xmlType = 'quarter'; lastNote.hasDot = false; break;
+                  case 6: lastNote.xmlType = 'quarter'; lastNote.hasDot = true; break;
+                  case 8: lastNote.xmlType = 'half'; lastNote.hasDot = false; break;
+                  case 12: lastNote.xmlType = 'half'; lastNote.hasDot = true; break;
+                  case 16: lastNote.xmlType = 'whole'; lastNote.hasDot = false; break;
+                }
+              }
+              return; // 增时线不产生独立音符，合并完毕后直接跳过
+            }
+
+            const degreeIndex = parseInt(n.degree) - 1;
+            const isRest = n.degree === 0 || n.degree === '0';
 
             let step = 'C';
             let alter = 0;
@@ -311,22 +348,6 @@ function convertToXmlData(song) {
               // Rest
               step = 'C';
               octave = 4;
-            }
-
-            // Duration calculation
-            let duration = 4;
-            let xmlType = 'quarter';
-
-            switch (n.duration) {
-              case 'whole': duration = 16; xmlType = 'whole'; break;
-              case 'half': duration = 8; xmlType = 'half'; break;
-              case 'quarter': duration = 4; xmlType = 'quarter'; break;
-              case 'eighth': duration = 2; xmlType = 'eighth'; break;
-              case 'sixteenth': duration = 1; xmlType = '16th'; break;
-            }
-
-            if (n.dotted) {
-              duration = Math.floor(duration * 1.5);
             }
 
             let tie = null;

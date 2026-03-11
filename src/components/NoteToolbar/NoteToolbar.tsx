@@ -4,7 +4,7 @@ import { Accidental as AccidentalEnum, Duration as DurationEnum, Degree } from "
 import "./NoteToolbar.css";
 
 type QuickInputConfig = {
-  pitch: number;
+  pitch: number | string;
   duration: 1 | 2 | 4 | 8 | 16;
   octaveShift: number;
   dotted: boolean;
@@ -26,7 +26,7 @@ const NoteToolbar: React.FC<NoteToolbarProps> = ({
   onAppendNote,
   onDeleteNote
 }) => {
-  const [selectedPitch, setSelectedPitch] = useState<number>(1);
+  const [selectedPitch, setSelectedPitch] = useState<number | string>(1);
   const [alter, setAlter] = useState<number>(0);
   const [octaveShift, setOctaveShift] = useState<number>(0);
   const [duration, setDuration] = useState<1 | 2 | 4 | 8 | 16>(4);
@@ -72,7 +72,7 @@ const NoteToolbar: React.FC<NoteToolbarProps> = ({
   }, [selectedPitch, duration, octaveShift, dotted, alter, onQuickInputConfigChange]);
 
   const updateSelectedNote = (updates: Partial<{
-    pitch: number;
+    pitch: number | string;
     alter: number;
     octaveShift: number;
     duration: 1 | 2 | 4 | 8 | 16;
@@ -118,7 +118,7 @@ const NoteToolbar: React.FC<NoteToolbarProps> = ({
     onUpdateSelectedNote(updated);
   };
 
-  const handlePitchChange = (pitch: number) => {
+  const handlePitchChange = (pitch: number | string) => {
     setSelectedPitch(pitch);
     updateSelectedNote({ pitch });
   };
@@ -169,7 +169,7 @@ const NoteToolbar: React.FC<NoteToolbarProps> = ({
       <div className="pitch-selector">
         <h5>音高</h5>
         <div className="pitch-buttons">
-          {[0, 1, 2, 3, 4, 5, 6, 7].map((pitch) => (
+          {[0, 1, 2, 3, 4, 5, 6, 7, '-'].map((pitch) => (
             <button
               key={pitch}
               className={`pitch-btn ${selectedPitch === pitch ? 'active' : ''}`}
