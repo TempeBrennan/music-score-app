@@ -15,6 +15,7 @@ export enum Degree {
   G = 5,
   A = 6,
   B = 7,
+  Extend = "-", // 增时线
 }
 
 // 升降号/还原号枚举
