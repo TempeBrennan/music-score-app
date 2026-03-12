@@ -101,7 +101,6 @@ export function useSongOperations(song: Song, setSong: (song: Song) => void, sel
                 duration: DurationEnum.Quarter,
               },
             ],
-            lyric: "歌词",
           },
         },
       ],

@@ -56,12 +56,14 @@ export type NoteV2 = {
 
   // 是否为延音（连音）终止点
   tieEnd?: boolean;
+
+  // 歌词（该音符对应的歌词文字，可选，可为多个字）
+  lyric?: string;
 };
 
-// 分组：一组音符和一句歌词（歌词为可选字符串）
+// 分组：一组音符
 export type Group = {
   notes: NoteV2[];
-  lyric?: string; // 一句歌词（可包含多个字/词），此句对应该组内音符的顺序
 };
 
 // 空白分隔符：仅用于视觉分隔小节中的不同分组
@@ -89,6 +91,7 @@ export type Song = {
   originalArtist?: string;   // 原唱
   keySignature?: string;     // 调号 (e.g., "C", "G", "Bb", "D#m")
   baseOctave?: number;       // 基准八度 (Default: 4. Means Key=C implies 1=C4, Key=G implies 1=G4)
+  tempo?: number;            // 速度/BPM（四分音符每分钟拍数，默认 60）
   measures: Measure[];       // 小节集合
 };
 

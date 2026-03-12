@@ -3,7 +3,7 @@ import type { Song, NoteV2 } from '../types';
 import { Accidental, Duration as DurationEnum, Degree } from '../types';
 
 interface QuickInputConfig {
-  pitch: number;
+  pitch: number | string;
   duration: 1 | 2 | 4 | 8 | 16;
   octaveShift?: number;
   dotted: boolean;

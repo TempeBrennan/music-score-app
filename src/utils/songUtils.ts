@@ -38,7 +38,6 @@ export const normalizeSongData = (data: any): Song => {
           return {
             ...el,
             group: {
-              ...el.group,
               notes: notes
             }
           };

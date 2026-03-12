@@ -87,11 +87,12 @@ const OCR_SYSTEM_PROMPT = `
         "type": "group",
         "group": {
           "notes": {
-            "0": { "degree": <number>, "accidental": <string>, "duration": <string> },
-            "1": { "degree": <number>, "accidental": <string>, "duration": <string>, "dotted": true },
+            "0": { "degree": 4, "duration": "quarter", "lyric": "打" },
+            "1": { "degree": 2, "duration": "quarter", "lyric": "动" },
+            "2": { "degree": 1, "duration": "quarter" },
+            "3": { "degree": 5, "duration": "quarter", "lyric": "感谢" },
             ...
-          },
-          "lyric": "<该小节完整歌词>"
+          }
         }
       }
     }
@@ -101,7 +102,9 @@ const OCR_SYSTEM_PROMPT = `
 ## 注意事项
 - notes 的 key 从 "0" 开始，按图中从左到右顺序递增
 - 一张截图通常只有一个小节，elements 只需要 "0" 这一个 group
-- 歌词保持原文，不拆分，整句放入 lyric 字段
+- lyric 字段放在对应音符的 note 对象内，根据该音符正下方是否有文字而定
+- 若某音符正下方有一个或多个文字，原样输出为该 note 的 lyric 字段（不拆分）
+- 若某音符正下方没有文字（如延音线后续音符、器乐过渡），不输出 lyric 字段
 - 只输出纯 JSON，不要 markdown 代码块，不要任何解释文字
 `.trim();
 
@@ -243,6 +246,10 @@ function convertToXmlData(song) {
     };
     xmlMeasure.divisions = 4;
 
+    if (mIdx === 0 && song.tempo) {
+      xmlMeasure.bpm = song.tempo;
+    }
+
     if (m.elements) {
       m.elements.forEach(el => {
         if (el.type === 'group' && el.group && el.group.notes) {
@@ -363,7 +370,7 @@ function convertToXmlData(song) {
               xmlType,  // string name
               tie,      // start or stop
               hasDot: n.dotted ? true : false,
-              lyric: nIdx === 0 ? el.group.lyric : null
+              lyric: n.lyric || null
             });
           });
         }

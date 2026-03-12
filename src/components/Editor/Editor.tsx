@@ -40,7 +40,6 @@ const demoSong: Song = {
               { degree: Degree.G, accidental: Accidental.Natural, duration: DurationEnum.Quarter },
               { degree: Degree.G, accidental: Accidental.Natural, duration: DurationEnum.Quarter },
             ],
-            lyric: "一闪一闪",
           },
         },
       ],
@@ -59,7 +58,13 @@ function Editor() {
   const [showOCRPanel, setShowOCRPanel] = useState(false);
   const scoreRef = useRef<ScoreHandle | null>(null);
   
-  const [quickInputConfig, setQuickInputConfig] = useState({
+  const [quickInputConfig, setQuickInputConfig] = useState<{
+    pitch: number | string;
+    duration: 1 | 2 | 4 | 8 | 16;
+    octaveShift: number;
+    dotted: boolean;
+    alter: number;
+  }>({
     pitch: 1,
     duration: 4 as 1 | 2 | 4 | 8 | 16,
     octaveShift: 0,
@@ -222,7 +227,7 @@ function Editor() {
                 value={song.baseOctave !== undefined ? song.baseOctave : 4}
                 onChange={(e) => setSong({...song, baseOctave: parseInt(e.target.value)})}
                 title="选择基准八度 (1 = ?)"
-                style={{ width: '80px', marginLeft: '8px' }}
+                style={{ width: '120px', marginLeft: '8px' }}
               >
                   <option value="2">Low (2)</option>
                   <option value="3">Mid-Low (3)</option>
@@ -230,6 +235,17 @@ function Editor() {
                   <option value="5">High (5)</option>
                   <option value="6">Very High (6)</option>
               </select>
+              <input
+                type="number"
+                className="song-input tempo-input"
+                value={song.tempo ?? 60}
+                min={20}
+                max={300}
+                onChange={(e) => setSong({...song, tempo: parseInt(e.target.value) || 60})}
+                placeholder="BPM"
+                title="速度（四分音符/分钟）"
+                style={{ width: '70px', marginLeft: '8px' }}
+              />
             </div>
             <div className="toolbar-divider"></div>
             <button 

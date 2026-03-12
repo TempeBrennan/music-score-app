@@ -18,14 +18,58 @@ const Score = forwardRef(
   }), [song]);
 
   const scoreRef = useRef<HTMLDivElement>(null);
-  const [ties, setTies] = useState<Array<{ startId: string; endId: string; startNote: NoteV2; endNote: NoteV2 }>>([]);
+  const [ties, setTies] = useState<Array<{ startId: string; endId: string; startNote: NoteV2; endNote: NoteV2 }>>([]); 
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+
+  // Flatten all note IDs in order across all measures
+  function getAllNoteIds(): string[] {
+    const ids: string[] = [];
+    song.measures.forEach((m, mIdx) => {
+      m.elements.forEach((el, elIdx) => {
+        if (el.type === 'group') {
+          el.group.notes.forEach((_, nIdx) => {
+            ids.push(`measure-${mIdx}-group-${elIdx}-note-${nIdx}`);
+          });
+        }
+      });
+    });
+    return ids;
+  }
+
+  function saveLyricToSong(noteId: string, lyric: string, baseSong: Song): Song {
+    const match = noteId.match(/^measure-(\d+)-group-(\d+)-note-(\d+)$/);
+    if (!match) return baseSong;
+    const [, mIdx, elIdx, nIdx] = match.map(Number);
+    const newSong: Song = JSON.parse(JSON.stringify(baseSong));
+    const el = newSong.measures[mIdx]?.elements[elIdx];
+    if (el?.type === 'group') {
+      el.group.notes[nIdx].lyric = lyric || undefined;
+    }
+    return newSong;
+  }
+
+  function handleLyricSave(noteId: string, lyric: string) {
+    onSongChange(saveLyricToSong(noteId, lyric, song));
+    setEditingNoteId(null);
+  }
+
+  function handleLyricTabNext(noteId: string, lyric: string) {
+    const updatedSong = saveLyricToSong(noteId, lyric, song);
+    onSongChange(updatedSong);
+    const allIds = getAllNoteIds();
+    const currentIdx = allIds.indexOf(noteId);
+    if (currentIdx >= 0 && currentIdx < allIds.length - 1) {
+      setEditingNoteId(allIds[currentIdx + 1]);
+    } else {
+      setEditingNoteId(null);
+    }
+  }
 
   // Trigger tie re-calculation on song change or window resize
   useEffect(() => {
     const calculateTies = () => {
       // Allow React to flush DOM updates first
       requestAnimationFrame(() => {
-        // Flatten all notes from all measures globally
         const allNotes: Array<{ id: string; note: NoteV2 }> = [];
         song.measures.forEach((m, mIdx) => {
           m.elements.forEach((el, elIdx) => {
@@ -88,6 +132,10 @@ const Score = forwardRef(
             onMeasureChange={changeMeasureAt}
             selectedNoteId={selectedNoteId}
             onNoteSelect={onNoteSelect}
+            editingNoteId={editingNoteId}
+            onLyricEditStart={setEditingNoteId}
+            onLyricSave={handleLyricSave}
+            onLyricTabNext={handleLyricTabNext}
           />
         ))}
 

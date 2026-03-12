@@ -188,4 +188,40 @@
   white-space: nowrap;
 }
 
+/* 歌词区域 */
+.note-lyric-area {
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 3px;
+  padding: 0 2px;
+  box-sizing: border-box;
+}
+
+.note-lyric-text {
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1.4;
+  user-select: none;
+  min-height: 1em;
+}
+
+.note-lyric-input {
+  width: 44px;
+  font-size: 14px;
+  font-family: inherit;
+  border: none;
+  border-bottom: 1.5px solid #1a73e8;
+  outline: none;
+  text-align: center;
+  background: transparent;
+  color: #333;
+  padding: 0 2px;
+  line-height: 1.4;
+  caret-color: #1a73e8;
+}
 
