@@ -28,6 +28,7 @@ declare global {
 const demoSong: Song = {
   title: "新乐谱",
   originalArtist: "未知",
+  tempo: 50,
   measures: [
     {
       elements: [

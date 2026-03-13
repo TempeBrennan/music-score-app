@@ -246,8 +246,8 @@ function convertToXmlData(song) {
     };
     xmlMeasure.divisions = 4;
 
-    if (mIdx === 0 && song.tempo) {
-      xmlMeasure.bpm = song.tempo;
+    if (mIdx === 0) {
+      xmlMeasure.bpm = song.tempo || 50;
     }
 
     if (m.elements) {
