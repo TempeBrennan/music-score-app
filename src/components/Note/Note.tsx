@@ -95,25 +95,23 @@ const Note: React.FC<NoteProps> = ({ note, onSelect, isSelected, isEditingLyric,
         </div>
       </div>
 
-      {/* 歌词区域（增时线不显示） */}
-      {!isExtend && (
-        <div className="note-lyric-area">
-          {isEditingLyric ? (
-            <input
-              ref={inputRef}
-              className="note-lyric-input"
-              value={lyricInput}
-              onChange={e => setLyricInput(e.target.value)}
-              onKeyDown={handleLyricKeyDown}
-              onBlur={() => onLyricSave?.(lyricInput)}
-              autoFocus
-              onClick={e => e.stopPropagation()}
-            />
-          ) : (
-            <span className="note-lyric-text">{note.lyric || ''}</span>
-          )}
-        </div>
-      )}
+      {/* 歌词区域（增时线保留占位保证高度一致） */}
+      <div className="note-lyric-area">
+        {!isExtend && (isEditingLyric ? (
+          <input
+            ref={inputRef}
+            className="note-lyric-input"
+            value={lyricInput}
+            onChange={e => setLyricInput(e.target.value)}
+            onKeyDown={handleLyricKeyDown}
+            onBlur={() => onLyricSave?.(lyricInput)}
+            autoFocus
+            onClick={e => e.stopPropagation()}
+          />
+        ) : (
+          <span className="note-lyric-text">{note.lyric || ''}</span>
+        ))}
+      </div>
     </div>
   );
 };

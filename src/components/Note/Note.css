@@ -170,8 +170,9 @@
   flex-direction: column;
   gap: 2px;
   margin-top: 3px;
-  min-height: 8px;
+  height: 14px; /* 固定高度确保所有音符对齐，不管有无下划线 */
   justify-content: flex-start;
+  flex-shrink: 0;
 }
 
 .note-underline {

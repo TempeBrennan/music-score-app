@@ -59,15 +59,19 @@ export function convertOCRToMeasure(ocrData: any): Measure | null {
             else if (duration === 'eighth') durationEnum = Duration.Eighth;
             else if (duration === 'sixteenth') durationEnum = Duration.Sixteenth;
 
+            // AI 有时会返回 "Extend" 字符串而非 "-"，在此做安全映射
+            const rawDegree = nData.degree === 'Extend' ? Degree.Extend : nData.degree;
+
             const note: NoteV2 = {
-              degree: nData.degree,
+              degree: rawDegree,
               accidental: nData.accidental === 'sharp' ? Accidental.Sharp : 
                           nData.accidental === 'flat' ? Accidental.Flat : Accidental.Natural,
               duration: durationEnum,
               dotted: !!nData.dotted,
               octaveShift: nData.octaveShift,
               tieStart: !!nData.tieStart,
-              tieEnd: !!nData.tieEnd
+              tieEnd: !!nData.tieEnd,
+              lyric: nData.lyric || undefined
             };
             notes.push(note);
           }
@@ -76,7 +80,6 @@ export function convertOCRToMeasure(ocrData: any): Measure | null {
         const groupKey = key; // Use key if needed, or just iterate
         const group: Group = {
           notes,
-          lyric: groupData.lyric || ""
         };
 
         elements.push({ type: 'group', group });

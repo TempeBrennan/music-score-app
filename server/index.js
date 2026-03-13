@@ -50,9 +50,10 @@ const OCR_SYSTEM_PROMPT = `
 
 ## 数据结构规则
 
-### 音高 degree（可为数字或字符）
+### 音高 degree（可为数字或字符串）
 - 0 = 休止符（Pause），包括图中的 "0"
-- 1=C, 2=D, 3=E, 4=F, 5=G, 6=A, 7=B, Extend = "-"
+- 1=C, 2=D, 3=E, 4=F, 5=G, 6=A, 7=B
+- 增时线（延长线，图中的 "—" 或 "-"）→ degree: "-"（字符串连字符）
 
 ### accidental（升降号）
 - "natural"（默认，无记号）
